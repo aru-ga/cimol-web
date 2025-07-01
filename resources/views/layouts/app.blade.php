@@ -23,8 +23,7 @@
                         <button type="submit" class="text-red-500 text-sm">Logout</button>
                     </form>
                 @else
-                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-yellow-600 text-sm">Register</a>
-                    <a href="{{ route('admin.login') }}" class="text-gray-700 hover:text-yellow-600 text-sm">Login</a>
+                    <a href="{{ route('admin.login') }}" class="text-gray-700 hover:text-yellow-600 text-sm">Admin Login</a>
                 @endauth
             </nav>
         </div>

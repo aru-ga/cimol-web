@@ -8,7 +8,6 @@ use App\Models\Product;
 use App\Http\Controllers\CatalogueController;
 use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 Route::post('/checkout', function (Request $request) {
     $request->validate([
@@ -30,7 +29,7 @@ Route::post('/checkout', function (Request $request) {
             'name' => $request->name,
             'phone' => $request->phone,
             'product_id' => $item['product_id'],
-            'price' => $product->price ?? 0, // ✅ Save price here
+            'price' => $product->price ?? 0,
             'seasoning' => $item['seasoning'],
             'toppings' => isset($item['toppings']) ? implode(',', $item['toppings']) : null,
             'quantity' => $item['quantity'],
@@ -134,26 +133,4 @@ Route::post('/admin/logout', function (Request $request) {
     return redirect('/');
 })->name('admin.logout');
 
-// User Registration Routes
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
 
-Route::post('/register', function (Request $request) {
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8',
-    ]);
-
-    $user = \App\Models\User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'email_verified_at' => now(),
-    ]);
-
-    Auth::login($user);
-    
-    return redirect()->route('home')->with('success', 'Registration successful! Welcome to Cimol Enak!');
-})->name('register.submit');
