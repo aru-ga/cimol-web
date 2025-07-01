@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Http\Controllers\CatalogueController;
 use App\Services\WhatsAppService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 Route::post('/checkout', function (Request $request) {
     $request->validate([
@@ -69,9 +71,9 @@ Route::get('/checkout', function () {
 })->name('checkout');
 
 Route::get('/dashboard', function () {
-    $orders = Order::latest()->get();
+    $orders = \App\Models\Order::latest()->get();
     return view('dashboard', compact('orders'));
-})->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::view('/about', 'about')->name('about');
 
@@ -111,3 +113,47 @@ Route::post('/cart/update', function (Request $request) {
     session()->put('cart', $cart);
     return redirect()->route('cart')->with('success', 'Cart updated successfully!');
 })->name('cart.update');
+
+Route::get('/admin/login', fn() => view('auth.login'))->name('admin.login');
+
+Route::post('/admin/login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
+    }
+
+    return back()->withErrors(['email' => 'Email atau password salah']);
+})->name('admin.login.submit');
+
+Route::post('/admin/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+})->name('admin.logout');
+
+// User Registration Routes
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
+
+Route::post('/register', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8',
+    ]);
+
+    $user = \App\Models\User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'email_verified_at' => now(),
+    ]);
+
+    Auth::login($user);
+    
+    return redirect()->route('home')->with('success', 'Registration successful! Welcome to Cimol Enak!');
+})->name('register.submit');

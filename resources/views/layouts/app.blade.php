@@ -16,6 +16,16 @@
                 <a href="{{ route('catalogue') }}" class="text-gray-700 hover:text-yellow-600">Catalogue</a>
                 <a href="{{ route('cart') }}" class="text-gray-700 hover:text-yellow-600">Cart</a>
                 <a href="{{ route('about') }}" class="text-sm text-gray-700 hover:text-yellow-600">About</a>
+                @auth
+                    <span class="text-sm text-gray-600">Hi, {{ Auth::user()->name }}!</span>
+                    <form method="POST" action="{{ route('admin.logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-red-500 text-sm">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-yellow-600 text-sm">Register</a>
+                    <a href="{{ route('admin.login') }}" class="text-gray-700 hover:text-yellow-600 text-sm">Login</a>
+                @endauth
             </nav>
         </div>
     </header>
